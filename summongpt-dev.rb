@@ -1,4 +1,4 @@
-class Summongpt < Formula
+class SummongptDev < Formula
   desc "Summon the power of ChatGPT using a keyboard shortcut."
   homepage "https://github.com/fayez-nazzal/summongpt"
   head "https://github.com/fayez-nazzal/summongpt.git"
