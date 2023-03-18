@@ -1,21 +1,30 @@
-class Summongpt < Formula
-  desc "A description of your Tauri application"
-  homepage "https://github.com/your-username/summongpt"
-  url "https://github.com/your-username/summongpt/releases/download/v1.0.0/summongpt-v1.0.0.tar.gz"
-  sha256 "1e57a452a094728c291bc42bf2bc7eb8d9fd8844d1369da2bf728588b46c4e75"
+require "language/node"
 
-  depends_on "rust"
+class Summongpt < Formula
+  desc "Summon the power of ChatGPT using a keyboard shortcut."
+  homepage "https://github.com/fayez-nazzal/summongpt"
+  head "https://github.com/fayez-nazzal/summongpt.git", branch: "main"
+  version "HEAD"
+
+  depends_on "rust" => :build
   depends_on "node"
 
   def install
-    system "npm", "install"
-    system "npm", "run", "build"
-    system "npm", "run", "tauri", "build"
-    bin.install "src-tauri/target/release/summongpt"
-  end
-
-  test do
-    # Add a simple test if you like
+    if build.head?
+      ohai "Current working directory: #{Dir.pwd}"
+      Dir.chdir(buildpath) do
+        ohai "Changed to buildpath: #{Dir.pwd}"
+        ENV["CI"] = "true"
+        system "npm", "install", *Language::Node.std_npm_install_args(libexec)
+        system "npm", "install", "pnpm"
+        system "npm", "install"
+        system "npm", "run", "build"
+        system "npm", "run", "tauri", "build", "--", "-b", "app"
+        prefix.install "src-tauri/target/release/bundle/macos/SummonGPT.app"
+        ohai "prefix #{prefix}"
+        bin.install_symlink prefix/"SummonGPT.app/Contents/MacOS/SummonGPT"
+      end
+    end
   end
 end
 
